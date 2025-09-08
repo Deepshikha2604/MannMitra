@@ -1,0 +1,246 @@
+.mood-tracker {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.mood-header {
+  background: white;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e1e5e9;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn {
+  color: #667eea;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.mood-header h1 {
+  flex: 1;
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #666;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.mood-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.mood-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.mood-section h2 {
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.mood-btn {
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.mood-btn:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.mood-btn.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.mood-emoji {
+  font-size: 2rem;
+}
+
+.mood-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mood-label {
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.emotion-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.emotion-section h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.emotion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+
+.emotion-btn {
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.emotion-btn:hover {
+  border-color: #667eea;
+  background: #f0f0f0;
+}
+
+.emotion-btn.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.mood-actions {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.log-mood-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-mood-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.log-mood-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mood-history {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.mood-history h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.history-placeholder {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.history-placeholder p {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.history-placeholder small {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .mood-main {
+    padding: 1rem;
+  }
+  
+  .mood-section,
+  .emotion-section,
+  .mood-history {
+    padding: 1.5rem;
+  }
+  
+  .mood-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+  
+  .emotion-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  }
+}
+
+
+
+
+
+
