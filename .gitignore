@@ -77,6 +77,10 @@ dist
 .cache/
 public
 
+# Keep frontend public assets tracked
+!frontend/public/
+!frontend/public/**
+
 # Storybook build outputs
 .out
 .storybook-out
@@ -128,3 +132,4 @@ mobile-app/android/app/release/
 mobile-app/android/app/debug/
 mobile-app/ios/Pods/
 mobile-app/ios/DerivedData/
+
