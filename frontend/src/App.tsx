@@ -8,8 +8,14 @@ import Chat from './components/Chat';
 import MoodTracker from './components/MoodTracker';
 import Activities from './components/Activities';
 import Profile from './components/Profile';
+import Programs from './components/Programs';
+import Assessments from './components/Assessments';
+import Resources from './components/Resources';
+import Helpline from './components/Helpline';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -17,6 +23,7 @@ function App() {
       <ChatProvider>
         <Router>
           <div className="App">
+            <Header />
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={
@@ -44,8 +51,25 @@ function App() {
                   <Profile />
                 </ProtectedRoute>
               } />
+              <Route path="/programs" element={
+                <ProtectedRoute>
+                  <Programs />
+                </ProtectedRoute>
+              } />
+              <Route path="/assessments" element={
+                <ProtectedRoute>
+                  <Assessments />
+                </ProtectedRoute>
+              } />
+              <Route path="/resources" element={
+                <ProtectedRoute>
+                  <Resources />
+                </ProtectedRoute>
+              } />
+              <Route path="/helpline" element={<Helpline />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <Footer />
           </div>
         </Router>
       </ChatProvider>

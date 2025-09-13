@@ -1,0 +1,85 @@
+.mm-footer { background: linear-gradient(180deg, #fefefe 0%, #f8fafc 100%); color:#1f2937; margin-top: 24px; border-top: 1px solid rgba(20, 184, 166, 0.1); }
+.mm-footer a { color:#1f2937; }
+
+/* Dark mode support */
+.theme-dark .mm-footer { 
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); 
+  color: #f1f5f9; 
+  border-top: 1px solid rgba(94, 234, 212, 0.1); 
+}
+.theme-dark .mm-footer a { color: #f1f5f9; }
+.mm-footer-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+.mm-columns { display:grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+.mm-col { grid-column: span 4; }
+.mm-brandline { display:flex; align-items:center; gap: 12px; margin-bottom: 8px; }
+.mm-logo-sm { width:32px; height:32px; border-radius: 8px; }
+.mm-brandtext .mm-wordmark { font-weight:700; color:#14b8a6; }
+.mm-brandtext .mm-tagline { font-size:12px; color:#64748b; }
+.mm-disclaimer { font-size: 12px; color:#64748b; margin: 6px 0 10px 0; }
+
+.theme-dark .mm-brandtext .mm-wordmark { color: #5eead4; }
+.theme-dark .mm-brandtext .mm-tagline { color: #94a3b8; }
+.theme-dark .mm-disclaimer { color: #94a3b8; }
+.mm-emergency-cards { display:flex; gap: 8px; flex-wrap: wrap; }
+.mm-card { background:#fefefe; border:1px solid rgba(20, 184, 166, 0.1); border-radius:10px; padding:10px 12px; min-width: 150px; }
+.mm-card-title { font-size: 12px; color:#64748b; }
+.mm-card-num { font-size: 16px; font-weight: 700; color:#1f2937; }
+.mm-helpline-note { font-size: 12px; color:#1f2937; margin-top: 8px; }
+
+.theme-dark .mm-card { background: #1e293b; border: 1px solid rgba(94, 234, 212, 0.1); }
+.theme-dark .mm-card-title { color: #94a3b8; }
+.theme-dark .mm-card-num { color: #f1f5f9; }
+.theme-dark .mm-helpline-note { color: #f1f5f9; }
+.mm-helpline-note a { text-decoration: underline; }
+
+.mm-section-title { font-weight: 600; color:#1f2937; margin: 10px 0; }
+.mm-linklist { list-style: none; padding:0; margin:0 0 10px 0; display:flex; flex-direction: column; gap: 6px; }
+.mm-linklist a { text-decoration: none; color:#1f2937; }
+.mm-linklist a:hover { text-decoration: underline; }
+
+.theme-dark .mm-section-title { color: #f1f5f9; }
+.theme-dark .mm-linklist a { color: #f1f5f9; }
+
+.mm-inputrow { display:flex; gap:8px; margin-bottom: 10px; }
+.mm-input { flex:1; padding: 10px 12px; border:1px solid rgba(20, 184, 166, 0.2); background:#fefefe; color:#1f2937; border-radius: 10px; }
+.mm-btn { padding: 10px 12px; border:1px solid rgba(20, 184, 166, 0.2); background:#f0fdfa; color:#1f2937; border-radius: 10px; cursor:pointer; }
+.mm-consent { font-size: 12px; color:#64748b; }
+
+.theme-dark .mm-input { background: #1e293b; border: 1px solid rgba(94, 234, 212, 0.2); color: #f1f5f9; }
+.theme-dark .mm-btn { background: #0f172a; border: 1px solid rgba(94, 234, 212, 0.2); color: #f1f5f9; }
+.theme-dark .mm-consent { color: #94a3b8; }
+.mm-chips { display:flex; gap:8px; flex-wrap: wrap; }
+.mm-chip { background:#f0fdfa; border:1px solid rgba(20, 184, 166, 0.15); color:#1f2937; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
+
+.theme-dark .mm-chip { background: #0f172a; border: 1px solid rgba(94, 234, 212, 0.15); color: #f1f5f9; }
+
+.mm-divider { height:1px; background: rgba(20, 184, 166, 0.1); margin: 18px 0; }
+.mm-meta { display:flex; justify-content: space-between; align-items:center; gap: 12px; }
+.mm-impact { display:flex; gap: 16px; color:#475569; font-size: 13px; }
+.mm-privacy { color:#475569; font-size: 13px; }
+
+.theme-dark .mm-divider { background: rgba(94, 234, 212, 0.1); }
+.theme-dark .mm-impact { color: #94a3b8; }
+.theme-dark .mm-privacy { color: #94a3b8; }
+
+.mm-footer-bottom { display:flex; justify-content: space-between; align-items:center; padding-top: 12px; }
+.mm-legal-links { display:flex; gap: 12px; }
+.mm-legal-links a { text-decoration: none; font-size: 13px; }
+.mm-legal-links a:hover { text-decoration: underline; }
+.mm-copy { color:#64748b; font-size: 13px; }
+
+.theme-dark .mm-legal-links a { color: #f1f5f9; }
+.theme-dark .mm-copy { color: #94a3b8; }
+
+@media (max-width: 1024px) {
+  .mm-col { grid-column: span 6; }
+  .mm-meta { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 640px) {
+  .mm-columns { grid-template-columns: repeat(6, 1fr); }
+  .mm-col { grid-column: span 6; }
+  .mm-footer-bottom { flex-direction: column; gap: 8px; align-items: flex-start; }
+}
+
+

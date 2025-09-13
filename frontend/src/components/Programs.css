@@ -1,0 +1,32 @@
+.programs-page { padding: 16px; }
+.programs-header { display:flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.programs-header h1 { margin: 0; }
+.programs-search { padding: 10px 12px; border:1px solid rgba(0,0,0,0.12); border-radius: 10px; min-width: 260px; }
+.programs-layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+.programs-list { display: flex; flex-direction: column; gap: 10px; }
+.program-item { text-align: left; padding: 12px; border:1px solid rgba(0,0,0,0.08); background:#fff; border-radius: 12px; cursor: pointer; }
+.program-item.active { border-color: rgba(0,0,0,0.18); background:#f8fafc; }
+.program-name { font-weight: 700; margin-bottom: 4px; }
+.program-tags { color:#64748b; font-size: 12px; margin-bottom: 8px; }
+.program-progress { display:flex; align-items: center; gap: 8px; }
+.program-progress .bar { flex:1; height: 6px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+.program-progress .bar span { display:block; height: 100%; background: #34d399; }
+.program-progress .pct { font-size: 12px; color:#475569; }
+.program-detail { background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 16px; }
+.program-head { display:flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.enroll-btn { border:1px solid rgba(0,0,0,0.12); background:#f8fafc; border-radius:10px; padding: 8px 12px; cursor: pointer; }
+.enroll-btn.enrolled { background:#ecfeff; border-color:#67e8f9; }
+.program-desc { color:#475569; }
+.program-goals { list-style:none; padding:0; margin: 10px 0 16px; display:flex; flex-wrap: wrap; gap: 8px; }
+.program-goals li { background:#f1f5f9; border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.lessons { list-style: none; padding: 0; display:flex; flex-direction: column; gap: 8px; }
+.lesson { border:1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 10px 12px; }
+.lesson.done { background:#f0fdf4; border-color:#bbf7d0; }
+.lesson-title { font-weight: 600; margin-left: 8px; }
+.lesson-meta { color:#64748b; margin-left: 8px; font-size: 12px; }
+
+@media (max-width: 900px) {
+  .programs-layout { grid-template-columns: 1fr; }
+}
+
+
