@@ -5,29 +5,12 @@ import { Heart, MessageCircle, TrendingUp, Activity, User, LogOut } from 'lucide
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-  };
+  const handleLogout = () => {};
 
   return (
     <div className="dashboard">
-      <header className="dashboard-header">
-        <div className="header-content">
-          <div className="logo">
-            <Heart className="logo-icon" />
-            <span className="logo-text">MannMitra</span>
-          </div>
-          <div className="user-info">
-            <span>Welcome, {user?.name || 'User'}!</span>
-            <button onClick={handleLogout} className="logout-btn">
-              <LogOut size={16} />
-            </button>
-          </div>
-        </div>
-      </header>
-
       <main className="dashboard-main">
         <div className="welcome-section">
           <h1>How are you feeling today?</h1>
