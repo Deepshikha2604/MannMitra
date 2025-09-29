@@ -1,5 +1,6 @@
 const { sequelize } = require('../../config/database');
-const { up } = require('./001_initial_tables');
+const initial = require('./001_initial_tables');
+const m003 = require('./003_update_user_auth_constraints');
 
 async function runMigrations() {
   try {
@@ -10,7 +11,8 @@ async function runMigrations() {
     console.log('✅ Database connection established');
 
     // Run migrations
-    await up();
+    await initial.up();
+    await m003.up();
     
     console.log('🎉 All migrations completed successfully!');
     process.exit(0);
@@ -26,6 +28,10 @@ if (require.main === module) {
 }
 
 module.exports = { runMigrations };
+
+
+
+
 
 
 

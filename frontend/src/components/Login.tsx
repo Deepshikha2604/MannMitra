@@ -6,29 +6,40 @@ import { Heart, MessageCircle, Brain } from 'lucide-react';
 import './Login.css';
 
 const Login: React.FC = () => {
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [step, setStep] = useState<'login' | 'otp'>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [requiresRegistration, setRequiresRegistration] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSendOTP = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) {
-      setError('Please enter your phone number');
+    if (!name.trim() || !phone.trim()) {
+      setError('Please enter both name and phone number');
       return;
     }
 
     setIsLoading(true);
     setError('');
+    setRequiresRegistration(false);
 
     try {
-      await authAPI.sendOTP(phone);
+      const resp = await authAPI.login(name.trim(), phone.trim());
+      // Backend returns requiresRegistration=false when user exists and OTP sent
+      if (resp.data?.success && resp.data?.requiresRegistration === false) {
+        setStep('otp');
+        return;
+      }
+      // Fallback
       setStep('otp');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to send OTP');
+      const message = error?.response?.data?.message || 'No account found with this name and phone number. Please register first.';
+      setRequiresRegistration(true);
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -45,13 +56,11 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      await login(phone, otp);
-      // Clear any previous errors on success
+      await login(name, phone, otp);
       setError('');
-      // Redirect to dashboard after successful login
       navigate('/');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Invalid OTP');
+      setError(error?.response?.data?.message || 'Invalid OTP');
     } finally {
       setIsLoading(false);
     }
@@ -80,9 +89,20 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        <form onSubmit={step === 'phone' ? handleSendOTP : handleVerifyOTP} className="login-form">
-          {step === 'phone' ? (
+        <form onSubmit={step === 'login' ? handleLogin : handleVerifyOTP} className="login-form">
+          {step === 'login' ? (
             <>
+              <div className="form-group">
+                <label htmlFor="name">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
               <div className="form-group">
                 <label htmlFor="phone">Phone Number</label>
                 <input
@@ -90,13 +110,26 @@ const Login: React.FC = () => {
                   id="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 9876543210"
+                  placeholder="9876543210"
+                  maxLength={10}
                   required
                 />
               </div>
               <button type="submit" disabled={isLoading} className="btn-primary">
-                {isLoading ? 'Sending...' : 'Send OTP'}
+                {isLoading ? 'Checking...' : 'Login'}
               </button>
+              {requiresRegistration && (
+                <div className="registration-prompt">
+                  <p>Don't have an account?</p>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/register')}
+                    className="btn-secondary"
+                  >
+                    Register Here
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -118,10 +151,10 @@ const Login: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => setStep('phone')}
+                onClick={() => setStep('login')}
                 className="btn-secondary"
               >
-                Change Phone Number
+                Change Details
               </button>
             </>
           )}

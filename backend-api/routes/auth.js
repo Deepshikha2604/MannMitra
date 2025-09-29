@@ -2,186 +2,296 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const { validateRegistration, validateLogin } = require('../middleware/validation');
 const smsService = require('../services/smsService');
 
 const router = express.Router();
 
-// Generate OTP
-router.post('/send-otp', async (req, res) => {
+// Login endpoint - Check if user exists with name + phone
+router.post('/login', async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { name, phone } = req.body;
 
-    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+    // Validate input
+    if (!name || !phone) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        message: 'Name and phone number are required'
+      });
+    }
+
+    if (!/^[0-9]{10}$/.test(phone)) {
       return res.status(400).json({
         error: 'Invalid phone number',
         message: 'Please provide a valid 10-digit phone number'
       });
     }
 
-    const normalizedPhone = phone.replace(/\D/g, ''); // Normalize phone number
+    const normalizedPhone = phone.replace(/\D/g, '');
+    const trimmedName = name.trim();
 
-    // Check if user exists
-    // const hashedPhone = await bcrypt.hash(normalizedPhone, 10);
-    // const existingUser = await User.findOne({
-    //   where: { phone: hashedPhone }
-    // });
+    // Check if user exists with name + phone combination
+    const user = await User.findByNameAndPhone(trimmedName, normalizedPhone);
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'No account found with this name and phone number. Please register first.',
+        requiresRegistration: true
+      });
+    }
 
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Store OTP in session (in production, use Redis)
-    req.session[normalizedPhone] = {
+    // Store OTP in session
+    req.session[`${trimmedName}_${normalizedPhone}`] = {
       otp,
       attempts: 0,
       expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-      hashedPhone: await bcrypt.hash(normalizedPhone, 10) // Store hashed phone for verification
+      isRegistration: false,
+      userId: user.id
     };
-    
-    // Debug logging
-    console.log('📱 OTP Sent Debug:');
-    console.log('  - Phone number:', phone);
-    console.log('  - Normalized phone:', normalizedPhone);
-    console.log('  - OTP generated:', otp);
-    console.log('  - Session keys after storing:', Object.keys(req.session));
-    console.log('  - Session data stored:', req.session[normalizedPhone]);
 
     // Send OTP via SMS
     await smsService.sendOTP(normalizedPhone, otp);
 
+    console.log(`📱 Login OTP sent to ${normalizedPhone} for user: ${trimmedName}`);
+    console.log(`🔑 OTP: ${otp}`);
+
     res.json({
+      success: true,
       message: 'OTP sent successfully',
-      phone: normalizedPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1***$3'), // Mask phone
-      userExists: false // Temporarily set to false for testing
+      phone: normalizedPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1***$3'),
+      requiresRegistration: false
     });
 
   } catch (error) {
-    console.error('Error sending OTP:', error);
+    console.error('Error in login:', error);
     res.status(500).json({
-      error: 'Failed to send OTP',
+      error: 'Login failed',
       message: 'Please try again later'
     });
   }
 });
 
-// Verify OTP and register/login
-router.post('/verify-otp', async (req, res) => {
+// Registration endpoint - Create new user with complete profile
+router.post('/register', async (req, res) => {
   try {
-    const { phone, otp, userData } = req.body;
+    const { 
+      name, 
+      phone, 
+      age, 
+      gender, 
+      location, 
+      education_level, 
+      occupation, 
+      preferred_language,
+      comfort_level,
+      emergency_contact 
+    } = req.body;
 
-    if (!phone || !otp) {
+    // Validate input
+    if (!name || !phone || !age || !gender || !location || !education_level || !occupation) {
       return res.status(400).json({
         error: 'Missing required fields',
-        message: 'Phone number and OTP are required'
+        message: 'All profile fields are required for registration'
       });
     }
 
-    const normalizedPhone = phone.replace(/\D/g, ''); // Normalize phone number
-    
-    // Debug logging
-    console.log('🔍 OTP Verification Debug:');
-    console.log('  - Original phone:', phone);
-    console.log('  - Normalized phone:', normalizedPhone);
-    console.log('  - Session keys:', Object.keys(req.session));
-    console.log('  - Session data for normalized phone:', req.session[normalizedPhone]);
-    console.log('  - OTP received:', otp);
-
-    // Verify OTP
-    const sessionData = req.session[normalizedPhone];
-    if (!sessionData || sessionData.otp !== otp || Date.now() > sessionData.expiresAt) {
-      console.log('❌ OTP Verification Failed:');
-      console.log('  - Session data exists:', !!sessionData);
-      console.log('  - OTP matches:', sessionData ? sessionData.otp === otp : 'N/A');
-      console.log('  - OTP expired:', sessionData ? Date.now() > sessionData.expiresAt : 'N/A');
-      
+    if (!/^[0-9]{10}$/.test(phone)) {
       return res.status(400).json({
-        error: 'Invalid OTP',
-        message: 'OTP is invalid or expired'
+        error: 'Invalid phone number',
+        message: 'Please provide a valid 10-digit phone number'
       });
     }
+
+    const normalizedPhone = phone.replace(/\D/g, '');
+    const trimmedName = name.trim();
+
+    // Check if user already exists
+    const existingUser = await User.findByNameAndPhone(trimmedName, normalizedPhone);
+    if (existingUser) {
+      return res.status(409).json({
+        error: 'User already exists',
+        message: 'An account with this name and phone number already exists. Please login instead.',
+        requiresRegistration: false
+      });
+    }
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    console.log('✅ OTP Verification Successful!');
-    console.log('  - OTP matched:', sessionData.otp === otp);
-    console.log('  - OTP not expired:', Date.now() <= sessionData.expiresAt);
-
-    // Check if user exists (temporarily commented out for testing)
-    const hashedPhone = sessionData.hashedPhone;
-    // let user = await User.findOne({ where: { phone: hashedPhone } });
-
-    // For testing, create a mock user
-    let user = {
-      id: 'test-user-' + Date.now(),
-      phone: hashedPhone,
-      onboarding_completed: false
+    // Store OTP and user data in session
+    req.session[`${trimmedName}_${normalizedPhone}`] = {
+      otp,
+      attempts: 0,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+      isRegistration: true,
+      userData: {
+        name: trimmedName,
+        phone: normalizedPhone,
+        age,
+        gender,
+        location,
+        education_level,
+        occupation,
+        preferred_language: preferred_language || 'hindi',
+        comfort_level: comfort_level || 'text',
+        emergency_contact
+      }
     };
 
-    // if (!user) {
-    //   // New user registration
-    //   if (!userData) {
-    //     return res.status(400).json({
-    //       error: 'User data required',
-    //       message: 'Please provide user information for registration'
-    //     });
-    //   }
+    // Send OTP via SMS
+    await smsService.sendOTP(normalizedPhone, otp);
 
-    //   // Validate user data
-    //   const validation = validateRegistration(userData);
-    //   if (!validation.isValid) {
-    //     return res.status(400).json({
-    //       error: 'Invalid user data',
-    //       message: validation.message
-    //     });
-    //   }
+    console.log(`📱 Registration OTP sent to ${normalizedPhone} for user: ${trimmedName}`);
+    console.log(`🔑 OTP: ${otp}`);
 
-    //   // Create new user
-    //   user = await User.create({
-    //     ...userData,
-    //     phone: hashedPhone,
-    //     onboarding_completed: false
-    //   });
+    res.json({
+      success: true,
+      message: 'OTP sent successfully. Please verify to complete registration.',
+      phone: normalizedPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1***$3'),
+      requiresRegistration: false
+    });
 
-    //   console.log('New user registered:', user.id);
-    // }
+  } catch (error) {
+    console.error('Error in registration:', error);
+    res.status(500).json({
+      error: 'Registration failed',
+      message: 'Please try again later'
+    });
+  }
+});
+
+// Verify OTP endpoint - Works for both login and registration
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { name, phone, otp } = req.body;
+
+    if (!name || !phone || !otp) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        message: 'Name, phone number, and OTP are required'
+      });
+    }
+
+    const normalizedPhone = phone.replace(/\D/g, '');
+    const trimmedName = name.trim();
+    const sessionKey = `${trimmedName}_${normalizedPhone}`;
+
+    // Get session data
+    const sessionData = req.session[sessionKey];
+    if (!sessionData) {
+      return res.status(400).json({
+        error: 'Session expired',
+        message: 'Please request a new OTP'
+      });
+    }
+
+    // Check OTP attempts
+    if (sessionData.attempts >= 3) {
+      return res.status(429).json({
+        error: 'Too many attempts',
+        message: 'Maximum OTP attempts exceeded. Please request a new OTP'
+      });
+    }
+
+    // Check OTP expiry
+    if (Date.now() > sessionData.expiresAt) {
+      delete req.session[sessionKey];
+      return res.status(400).json({
+        error: 'OTP expired',
+        message: 'OTP has expired. Please request a new OTP'
+      });
+    }
+
+    // Verify OTP
+    if (sessionData.otp !== otp) {
+      sessionData.attempts += 1;
+      return res.status(400).json({
+        error: 'Invalid OTP',
+        message: `Invalid OTP. ${3 - sessionData.attempts} attempts remaining`
+      });
+    }
+
+    let user;
+    let isNewUser = false;
+
+    if (sessionData.isRegistration) {
+      // Create new user
+      try {
+        user = await User.create(sessionData.userData);
+        isNewUser = true;
+        console.log(`✅ New user registered: ${user.name} (${user.id})`);
+      } catch (error) {
+        console.error('Error creating user:', error);
+        const errorMessage = (error && error.errors && error.errors[0] && error.errors[0].message)
+          || error.message
+          || 'Failed to create user account. Please try again.';
+        return res.status(400).json({
+          error: 'Registration failed',
+          message: errorMessage
+        });
+      }
+    } else {
+      // Login existing user
+      user = await User.findByPk(sessionData.userId);
+      if (!user) {
+        return res.status(404).json({
+          error: 'User not found',
+          message: 'User account not found. Please register first.'
+        });
+      }
+      console.log(`✅ User logged in: ${user.name} (${user.id})`);
+    }
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user.id, phone },
+      { userId: user.id, phone: user.phone },
       process.env.JWT_SECRET || 'mannmitra-secret',
       { expiresIn: '30d' }
     );
 
-    // Update last login (temporarily commented out for testing)
-    // await user.update({ last_login: new Date() });
+    // Update last login
+    await user.update({ last_login: new Date() });
 
     // Clear OTP session
-    delete req.session[normalizedPhone];
+    delete req.session[sessionKey];
 
     const response = {
-      message: user.onboarding_completed ? 'Login successful' : 'Registration successful',
+      success: true,
+      message: isNewUser ? 'Registration successful' : 'Login successful',
       token,
       user: {
         id: user.id,
+        name: user.name,
         phone: user.phone,
+        age: user.age,
+        gender: user.gender,
+        location: user.location,
+        education_level: user.education_level,
+        occupation: user.occupation,
+        preferred_language: user.preferred_language,
+        comfort_level: user.comfort_level,
+        emergency_contact: user.emergency_contact,
         onboarding_completed: user.onboarding_completed
       },
-      requiresOnboarding: !user.onboarding_completed
+      isNewUser
     };
-    
-    console.log('📤 Sending Success Response:');
-    console.log('  - Response data:', response);
-    
+
+    console.log(`📤 Authentication successful for: ${user.name}`);
     res.json(response);
 
   } catch (error) {
     console.error('Error verifying OTP:', error);
     res.status(500).json({
-      error: 'Authentication failed',
+      error: 'Verification failed',
       message: 'Please try again later'
     });
   }
 });
 
-// Complete onboarding
+// Complete onboarding (for backward compatibility)
 router.post('/onboarding', async (req, res) => {
   try {
     const { userId } = req.user; // From auth middleware
@@ -218,6 +328,7 @@ router.post('/onboarding', async (req, res) => {
     });
 
     res.json({
+      success: true,
       message: 'Onboarding completed successfully',
       user: {
         id: user.id,
@@ -268,6 +379,7 @@ router.post('/refresh', async (req, res) => {
     );
 
     res.json({
+      success: true,
       message: 'Token refreshed successfully',
       token: newToken
     });
@@ -284,8 +396,8 @@ router.post('/refresh', async (req, res) => {
 // Logout
 router.post('/logout', async (req, res) => {
   try {
-    // In a more sophisticated setup, you might want to blacklist the token
     res.json({
+      success: true,
       message: 'Logged out successfully'
     });
   } catch (error) {

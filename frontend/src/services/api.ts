@@ -37,9 +37,12 @@ api.interceptors.response.use(
 );
 
 export const authAPI = {
-  sendOTP: (phone: string) => api.post('/api/auth/send-otp', { phone }),
-  verifyOTP: (phone: string, otp: string) => api.post('/api/auth/verify-otp', { phone, otp }),
+  login: (name: string, phone: string) => api.post('/api/auth/login', { name, phone }),
+  register: (data: any) => api.post('/api/auth/register', data),
+  verifyOTP: (name: string, phone: string, otp: string) => api.post('/api/auth/verify-otp', { name, phone, otp }),
   completeOnboarding: (data: any) => api.post('/api/auth/onboarding', data),
+  // Legacy methods for backward compatibility
+  sendOTP: (phone: string) => api.post('/api/auth/send-otp', { phone }),
 };
 
 export const chatAPI = {

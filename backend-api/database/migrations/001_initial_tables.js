@@ -2,24 +2,31 @@ const { sequelize } = require('../../config/database');
 
 async function up() {
   try {
+    // Enable required extension for UUID generation
+    await sequelize.query(`
+      CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    `);
+
     // Create Users table
     await sequelize.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         phone VARCHAR(20) UNIQUE NOT NULL,
         phone_hash VARCHAR(255) NOT NULL,
-        name VARCHAR(100),
-        age INTEGER,
-        gender VARCHAR(20),
-        location VARCHAR(100),
-        education_level VARCHAR(50),
-        occupation VARCHAR(100),
-        preferred_language VARCHAR(20) DEFAULT 'hindi',
-        comfort_level VARCHAR(20) DEFAULT 'beginner',
+        name VARCHAR(100) NOT NULL,
+        age INTEGER NOT NULL CHECK (age >= 13 AND age <= 120),
+        gender VARCHAR(30) NOT NULL,
+        location VARCHAR(100) NOT NULL,
+        education_level VARCHAR(50) NOT NULL,
+        occupation VARCHAR(50) NOT NULL,
+        preferred_language VARCHAR(20) NOT NULL DEFAULT 'hindi',
+        comfort_level VARCHAR(20) NOT NULL DEFAULT 'text',
         emergency_contact VARCHAR(20),
         is_active BOOLEAN DEFAULT true,
+        last_login TIMESTAMP WITH TIME ZONE,
         onboarding_completed BOOLEAN DEFAULT false,
         subscription_type VARCHAR(20) DEFAULT 'free',
+        subscription_expires TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
@@ -101,6 +108,10 @@ async function down() {
 }
 
 module.exports = { up, down };
+
+
+
+
 
 
 

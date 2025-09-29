@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (phone: string, otp: string) => Promise<void>;
+  login: (name: string, phone: string, otp: string) => Promise<void>;
   logout: () => void;
   completeOnboarding: (data: any) => Promise<void>;
 }
@@ -56,11 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (phone: string, otp: string) => {
+  const login = async (name: string, phone: string, otp: string) => {
     try {
-      const response = await authAPI.verifyOTP(phone, otp);
+      const response = await authAPI.verifyOTP(name, phone, otp);
       const { token, user: userData } = response.data;
-      
+
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
