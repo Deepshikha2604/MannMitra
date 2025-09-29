@@ -10,11 +10,14 @@ const User = sequelize.define('User', {
   },
   phone: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
     validate: {
       is: /^[0-9]{10}$/
     }
+  },
+  phone_hash: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   name: {
     type: DataTypes.STRING,
@@ -81,13 +84,38 @@ const User = sequelize.define('User', {
 }, {
   tableName: 'users',
   hooks: {
-    beforeCreate: async (user) => {
-      // Hash phone number for privacy
-      if (user.phone) {
-        user.phone = await bcrypt.hash(user.phone, 10);
+    // Validation runs before create, so ensure phone_hash exists pre-validation
+    beforeValidate: async (user) => {
+      if (user.phone && !user.phone_hash) {
+        user.phone_hash = await bcrypt.hash(user.phone, 10);
       }
     }
   }
 });
+
+// Static methods for authentication
+User.findByNameAndPhone = async function(name, phone) {
+  const normalizedName = String(name || '').trim().toLowerCase();
+  const normalizedPhone = String(phone || '').replace(/\D/g, '');
+  return await this.findOne({
+    where: {
+      phone: normalizedPhone,
+      name: sequelize.where(
+        sequelize.fn('LOWER', sequelize.col('name')),
+        normalizedName
+      )
+    }
+  });
+};
+
+User.findByPhone = async function(phone) {
+  return await this.findOne({
+    where: { phone }
+  });
+};
+
+User.verifyPhoneHash = async function(phone, phoneHash) {
+  return await bcrypt.compare(phone, phoneHash);
+};
 
 module.exports = User;
